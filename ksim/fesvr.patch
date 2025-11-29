@@ -203,13 +203,13 @@ index 01abb1d..64be225 100644
    auto start = std::chrono::system_clock::now();
 -  for(auto i = 0; i < cnt; i++) {
 +  reset = 0;
-+  for(;;) {
++  while(trace_count < max_cycles) {
 +    if (dtm->done() || io_success) {
 +      break;
 +    }
      TestHarness();
 +    tick_dtm();
-+    printf("#cycle: %ld\n", trace_count++);
++    trace_count++;
    }
    auto stop = std::chrono::system_clock::now();
    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count() << std::endl;
