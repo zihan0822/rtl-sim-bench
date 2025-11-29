@@ -1,0 +1,10 @@
+[submodule "repcut-sim/repcut"]
+	path = repcut-sim/repcut
+	url = https://github.com/ucsc-vama/essent
+    branch = repcut
+[submodule "repcut-sim/firrtl-sig"]
+	path = repcut-sim/firrtl-sig
+	url = https://github.com/ucsc-vama/firrtl-sig
+[submodule "repcut-sim/kahypar"]
+	path = repcut-sim/kahypar
+	url = https://github.com/kahypar/kahypar
