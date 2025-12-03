@@ -11,6 +11,6 @@ patronus:
 btor: $(PATCHED_VERILOG_SOURCE)
 	@mkdir -p $(BUILD)
 	@(VERILOG_FILES="$^ patronus/resources/verilog/*" \
-	 TOP_MODULE=TestHarness \
+	 TOP_MODULE=$(TOP_MODULE) \
 	 BTOR_OUTPUT=$(BUILD)TestHarness.btor \
 		time yosys patronus/verilog2btor.tcl) 2>$(BUILD)gen-time.log
