@@ -4,3 +4,4 @@ riscv
 ksim/emulator.cpp
 target
 build*
+*-stripped.fir

@@ -1,0 +1,6 @@
+chip-designs filter=lfs diff=lfs merge=lfs -text
+chip-designs/RocketChip.fir filter=lfs diff=lfs merge=lfs -text
+chip-designs/boom21.fir filter=lfs diff=lfs merge=lfs -text
+chip-designs/freechips.rocketchip.system.DefaultConfig.fir filter=lfs diff=lfs merge=lfs -text
+chip-designs/freechips.rocketchip.system.LargeBoomConfig.fir filter=lfs diff=lfs merge=lfs -text
+chip-designs/rocket20.fir filter=lfs diff=lfs merge=lfs -text
