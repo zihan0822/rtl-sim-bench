@@ -1,18 +1,19 @@
 include ../common.mk
 PAR_LEVELS := 1 2 4
-EMULATORS := $(PAR_LEVELS:%=build/par-%/emulator)
+EMULATORS := $(PAR_LEVELS:%=$(BUILD)par-%/emulator)
 
 all: $(EMULATORS) 
 
-build/par-%/emulator: harness-%
-	@time clang++ -O3 -std=c++17 -fno-slp-vectorize -fbracket-depth=1024 -Ifirrtl-sig -Ibuild/par-$* \
-		$(ROOT_DIR)/essent-design-harness.cpp -o $@ -lfesvr 
+$(BUILD)par-%/emulator: harness-%
+	@cd $(BUILD)par-$* && \
+		(time clang++ -O3 -std=c++17 -fno-slp-vectorize -fbracket-depth=1024 -I$(ROOT_DIR)/firrtl-sig -I. \
+			$(ROOT_DIR)/essent-design-harness.cpp -o emulator -lfesvr) > compile-time.log 2>&1
 
-harness-%:
-	@mkdir -p build/par-$*
-	@cd build/par-$* && \
+harness-%: $(FIRRTL_SOURCE) 
+	@mkdir -p $(BUILD)/par-$*
+	@cd $(BUILD)/par-$* && \
 		ln -s -f $(FIRRTL_SOURCE) design.fir && \
-		time $(ROOT_DIR)/repcut-sim/repcut/utils/bin/essent ./design.fir -O0 --parallel $*
+		(time $(ROOT_DIR)/repcut-sim/repcut/utils/bin/essent ./design.fir -O0 --parallel $*) > gen-time.log 2>&1
 
 clean:
-	@rm -rf build
+	@rm -rf $(BUILD) 
