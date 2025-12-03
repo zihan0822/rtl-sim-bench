@@ -14,3 +14,6 @@
 [submodule "patronus-sim/patronus"]
 	path = patronus-sim/patronus
 	url = https://github.com/zihan0822/rocket-chip-driver
+[submodule "patronus-sim/yosys"]
+	path = patronus-sim/yosys
+	url = https://github.com/zihan0822/yosys.git
