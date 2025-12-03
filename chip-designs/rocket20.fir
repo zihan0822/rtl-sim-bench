@@ -1,1 +1,0 @@
-freechips.rocketchip.system.DefaultConfig.fir
