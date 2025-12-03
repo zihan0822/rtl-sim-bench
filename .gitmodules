@@ -11,9 +11,6 @@
 [submodule "essent-sim/essent"]
 	path = essent-sim/essent
 	url = https://github.com/ucsc-vama/essent
-[submodule "patronus"]
-	path = patronus
-	url = https://github.com/zihan0822/rocket-chip-driver
 [submodule "patronus-sim/patronus"]
 	path = patronus-sim/patronus
 	url = https://github.com/zihan0822/rocket-chip-driver

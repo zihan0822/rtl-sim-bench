@@ -41,6 +41,23 @@ DEFAULT_HARNESS_ARGS = ["-c"]
 DEFAULT_MAX_NUM_WORKERS = 8
 
 
+def prepare_patronus_jit_run_task(design: str):
+    base = Path("patronus-sim")
+    emulator = base / "patronus" / "resources" / "emulator"
+    btor = base / f"build-{design}" / "TestHarness.btor"
+    prefix = Path("results") / design / "patronus"
+    prefix.mkdir(parents=True, exist_ok=True)
+    executor_payloads = []
+    for bench in get_workloads():
+        executor_payloads.append(
+            (
+                prefix / f"{bench.name}.out",
+                ["time", str(emulator), *DEFAULT_HARNESS_ARGS, btor, str(bench)],
+            )
+        )
+    return [(run_one_bench, *arg) for arg in executor_payloads]
+
+
 def prepare_bench_run_task(tool_name: str, design: str, *args, **kwargs):
     emulators = get_emulators(tool_name, design, *args, **kwargs)
     workloads = get_workloads()
@@ -81,10 +98,12 @@ def run_one_bench(save_path: str, command: List[str]):
 
 if __name__ == "__main__":
     tasks = [
-        *prepare_bench_run_task("repcut", "rocket20", [1, 2, 4]),
-        *prepare_bench_run_task("repcut", "boom21", [1, 2, 4]),
+        *prepare_bench_run_task("repcut", "rocket20", [2, 4]),
+        *prepare_bench_run_task("repcut", "boom21", [2, 4]),
         *prepare_bench_run_task("essent", "rocket20", ["O3"]),
         *prepare_bench_run_task("essent", "boom21", ["O3"]),
+        *prepare_patronus_jit_run_task("rocket20"),
+        *prepare_patronus_jit_run_task("boom21"),
     ]
     with ProcessPoolExecutor(
         max_workers=min(len(tasks), DEFAULT_MAX_NUM_WORKERS)
