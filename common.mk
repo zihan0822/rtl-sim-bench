@@ -5,10 +5,17 @@ CXXFLAGS := -O3 -std=c++17
 INCLUDES := -I$(RISCV_DIR)/include
 LIBS := -L$(RISCV_DIR)/lib -Wl,-rpath,$(RISCV_DIR)/lib
 
-FIRRTL_SOURCE := $(ROOT_DIR)/chip-designs/rocket20.fir
+DESIGN := rocket20
+UNSTRIPPED_FIRRTL_SOURCE := $(ROOT_DIR)/chip-designs/$(DESIGN).fir
+FIRRTL_SOURCE := $(patsubst %.fir, %-stripped.fir, $(UNSTRIPPED_FIRRTL_SOURCE))
+BUILD := build-$(DESIGN)/
 SBT_OPTS := "-Xmx4G -Xss4M"
 
 .PHONY: riscv clean
+
+$(FIRRTL_SOURCE): $(UNSTRIPPED_FIRRTL_SOURCE) 
+	@cd tools/firrtl-strip && \
+		cargo run --release -- $(UNSTRIPPED_FIRRTL_SOURCE) > $@
 
 riscv:
 	@mkdir -p $(RISCV_DIR)
