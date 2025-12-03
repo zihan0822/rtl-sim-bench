@@ -8,3 +8,6 @@
 [submodule "repcut-sim/kahypar"]
 	path = repcut-sim/kahypar
 	url = https://github.com/kahypar/kahypar
+[submodule "essent-sim/essent"]
+	path = essent-sim/essent
+	url = https://github.com/ucsc-vama/essent
