@@ -39,6 +39,7 @@ def get_workloads(workloads_dir=Path("workloads/benchmarks")) -> List[Path]:
 
 DEFAULT_HARNESS_ARGS = ["-c"]
 DEFAULT_MAX_NUM_WORKERS = 8
+DEFAULT_KSIM_SPIN_ROUND = 500_000
 
 
 def prepare_patronus_jit_run_task(design: str):
@@ -105,10 +106,12 @@ if __name__ == "__main__":
         *prepare_bench_run_task("verilator", "boom21"),
         # ksim seems a bit buggy, `emulator` it currently generates cannot terminate due to incorrect output states
         # We here restrict the maximum cycle `emulator` can run.
-        *prepare_bench_run_task("ksim", "rocket20", harness_args=["-m", "10000", "-c"]),
+        *prepare_bench_run_task(
+            "ksim", "rocket20", harness_args=["-m", str(DEFAULT_KSIM_SPIN_ROUND), "-c"]
+        ),
         # ksim for boom21 is disabled by default due to its long compilation time.
         # Please uncomment the corresponding `make` in `compile.sh` first before run it.
-        # *prepare_bench_run_task("ksim", "boom21", harness_args=["-m", "1000000", "-c"]),
+        # *prepare_bench_run_task("ksim", "boom21", harness_args=["-m", str(DEFAULT_KSIM_SPIN_ROUND), "-c"]),
         *prepare_patronus_jit_run_task("rocket20"),
         *prepare_patronus_jit_run_task("boom21"),
     ]
