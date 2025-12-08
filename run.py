@@ -1,15 +1,15 @@
 from pathlib import Path
-from typing import List
+from typing import List, Any
 import subprocess
 from concurrent.futures import ProcessPoolExecutor, wait
 
 
-def get_emulators(tool: str, design: str, *args, **kwargs):
+def get_emulators(tool: str, design: str, tags: List[Any]):
     base = Path(canonicalize_tool_name(tool)) / f"build-{design}"
     if tool == "repcut":
-        return find_repcut_emulators(base, *args, **kwargs)
+        return find_repcut_emulators(base, tags)
     elif tool == "essent":
-        return find_emulator_variants(base, *args, **kwargs)
+        return find_emulator_variants(base, tags)
     else:
         return default_emulator_path(base)
 
@@ -58,8 +58,13 @@ def prepare_patronus_jit_run_task(design: str):
     return [(run_one_bench, *arg) for arg in executor_payloads]
 
 
-def prepare_bench_run_task(tool_name: str, design: str, *args, **kwargs):
-    emulators = get_emulators(tool_name, design, *args, **kwargs)
+def prepare_bench_run_task(
+    tool_name: str,
+    design: str,
+    tags: List[Any] = None,
+    harness_args: List[str] = DEFAULT_HARNESS_ARGS,
+):
+    emulators = get_emulators(tool_name, design, tags)
     workloads = get_workloads()
     if len(emulators) > 1:
         tags = [f.parent.name for f in emulators]
@@ -75,16 +80,10 @@ def prepare_bench_run_task(tool_name: str, design: str, *args, **kwargs):
             executor_payloads.append(
                 (
                     prefix / f"{bench.name}.out",
-                    ["time", str(emulator), *DEFAULT_HARNESS_ARGS, str(bench)],
+                    ["time", str(emulator), *harness_args, str(bench)],
                 )
             )
     return [(run_one_bench, *arg) for arg in executor_payloads]
-    with ProcessPoolExecutor(
-        max_workers=min(len(workloads), DEFAULT_MAX_NUM_WORKERS)
-    ) as executor:
-        tasks.extend(
-            [executor.submit(run_one_bench, *arg) for arg in executor_payloads]
-        )
 
 
 def run_one_bench(save_path: str, command: List[str]):
@@ -104,6 +103,12 @@ if __name__ == "__main__":
         *prepare_bench_run_task("essent", "boom21", ["O3"]),
         *prepare_bench_run_task("verilator", "rocket20"),
         *prepare_bench_run_task("verilator", "boom21"),
+        # ksim seems a bit buggy, `emulator` it currently generates cannot terminate due to incorrect output states
+        # We here restrict the maximum cycle `emulator` can run.
+        *prepare_bench_run_task("ksim", "rocket20", harness_args=["-m", "10000", "-c"]),
+        # ksim for boom21 is disabled by default due to its long compilation time.
+        # Please uncomment the corresponding `make` in `compile.sh` first before run it.
+        # *prepare_bench_run_task("ksim", "boom21", harness_args=["-m", "1000000", "-c"]),
         *prepare_patronus_jit_run_task("rocket20"),
         *prepare_patronus_jit_run_task("boom21"),
     ]

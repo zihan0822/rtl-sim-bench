@@ -1,20 +1,20 @@
 include ../common.mk
-FIRRTL_SOURCE := ../chip-designs/rocket20.fir
-KSIM := ksim
-FIRTOOL := firtool
-TEST_ELF := ../workloads/tests/rv64ui-p-add
+KSIM ?= ksim
+FIRTOOL ?= firtool
 
-run: emulator
-	./emulator -c $(TEST_ELF) 
+all: emulator
 
-emulator: TestHarness.o emulator.cpp
-	git apply fesvr.patch
-	$(CXX) $(INCLUDES) $(LIBS) -o $@ $^ -lfesvr
+emulator: emulator.cpp TestHarness.o 
+	cd $(BUILD) && \
+	 	patch -p1 $< ../fesvr.patch && \
+		$(CXX) $(CXXFLAGS) -o $@ $^ -lfesvr
 
 TestHarness.o: $(FIRRTL_SOURCE) 
-	$(FIRTOOL) --ir-hw --disable-all-randomization $(FIRRTL_SOURCE) -o TestHarness.mlir 
-	$(KSIM) TestHarness.mlir -v -o TestHarness.ll --out-header=TestHarness.h --out-driver=emulator.cpp
-	llc --relocation-model=dynamic-no-pic -O2 -filetype=obj TestHarness.ll -o $@ 
+	@mkdir -p $(BUILD)
+	@cd $(BUILD) && \
+		(time $(FIRTOOL) --ir-hw --disable-all-randomization $(FIRRTL_SOURCE) -o TestHarness.mlir && \
+			$(KSIM) TestHarness.mlir -v -o TestHarness.ll --out-header=TestHarness.h --out-driver=emulator.cpp) > $(GENERATION_TIME_LOG) 2>&1 && \
+		(time llc --relocation-model=dynamic-no-pic -filetype=obj -O3 TestHarness.ll -o $@) > $(COMPILE_TIME_LOG) 2>&1
 
 clean:
 	@rm -f TestHarness.* emulator
