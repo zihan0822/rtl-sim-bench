@@ -15,11 +15,11 @@ verilator: $(VERILOG_SOURCE)
 		(time verilator --sv --cc $^ ../resources/verilog/*.v ../resources/cxx/SimDTM.cc \
 			-O3 -x-assign fast -x-initial fast \
 			-CFLAGS -O3 \
-			-top-module $(TOP_MODULE)) 2>gen-time.log
+			-top-module $(TOP_MODULE)) 2> $(GENERATION_TIME_LOG)
 
 libVTestHarness: verilator
 	@cd $(BUILD) && \
-		(CCACHE_DISABLE=1 time make -C obj_dir -f VTestHarness.mk libVTestHarness) 2> compile-time.log
+		(CCACHE_DISABLE=1 time make -C obj_dir -f VTestHarness.mk libVTestHarness) 2> $(COMPILE_TIME_LOG) 
 
 clean:
 	@rm -rf $(BUILD)

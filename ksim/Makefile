@@ -13,8 +13,8 @@ TestHarness.o: $(FIRRTL_SOURCE)
 	@mkdir -p $(BUILD)
 	@cd $(BUILD) && \
 		(time $(FIRTOOL) --ir-hw --disable-all-randomization $(FIRRTL_SOURCE) -o TestHarness.mlir && \
-			$(KSIM) TestHarness.mlir -v -o TestHarness.ll --out-header=TestHarness.h --out-driver=emulator.cpp) > $(GENERATION_TIME_LOG) 2>&1 && \
-		(time llc --relocation-model=dynamic-no-pic -filetype=obj -O3 TestHarness.ll -o $@) > $(COMPILE_TIME_LOG) 2>&1
+			$(KSIM) TestHarness.mlir -v -o TestHarness.ll --out-header=TestHarness.h --out-driver=emulator.cpp) 2> $(GENERATION_TIME_LOG) && \
+		(time llc --relocation-model=dynamic-no-pic -filetype=obj -O3 TestHarness.ll -o $@) 2> $(COMPILE_TIME_LOG)
 
 clean:
 	@rm -f TestHarness.* emulator
